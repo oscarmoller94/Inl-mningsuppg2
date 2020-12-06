@@ -6,11 +6,149 @@ namespace Inlämningsuppg2
 {
     class Program
     {
+        static List<Member> bästkustenMembers = AddMembers();
+        static List<Member> removedMembers = new List<Member>();
         static void Main(string[] args)
-        {   
+        {
+            
             Login();
         }
 
+        private static void Login()
+        {
+            string input;
+            string correctPassword = "bästkusten";
+            do
+            {
+                Console.Write("Enter the password: ");
+                input = Console.ReadLine();
+
+                if (input.ToLower() != correctPassword)
+                {
+                    Console.WriteLine("Wrong password. Try again!");
+                }
+
+            } while (input.ToLower() != correctPassword);
+
+            Console.Clear();
+            Console.WriteLine("Welcome!!");
+
+            MainMenu();
+
+        }
+        private static void MainMenu()
+        {
+            int choice;
+            do
+            {
+                Console.WriteLine("Pick a number from the menu:");
+                Console.WriteLine("1. Show all members");
+                Console.WriteLine("2. Details about specific member");
+                Console.WriteLine("3. Remove member");
+                Console.WriteLine("4. Show removed members");
+                Console.WriteLine("5. Exit");
+
+                int.TryParse(Console.ReadLine(), out choice);
+                MenuAction(choice);
+          
+            } while (choice != 5);
+        }
+        private static void QuitOrContinue()
+        {
+            string input = "";
+            bool quit = false;
+
+            while (quit == false)
+            {
+                Console.WriteLine("Are you sure you want to quit? y/n");
+                input = Console.ReadLine();
+
+                if (input.ToLower() == "y")
+                {
+                    Console.Clear();
+                    Console.WriteLine("See you next time!");
+                    quit = true;
+                }
+                else if (input.ToLower() == "n")
+                {
+                    MainMenu();
+                    quit = true;
+                }
+                else
+                {
+                    Console.Clear();
+                    Console.WriteLine("Not valid input. Press y/n");
+                }
+            }
+                
+
+            
+      
+        } 
+        private static void MenuAction(int choice)
+        {
+            int indexOfMember;
+           
+            switch (choice)
+            {
+                case 1:
+                    ShowMembersOfList(bästkustenMembers);
+                    break;
+                case 2:
+                    Console.WriteLine("Select the number next to the member you want to reveal details about:");
+                    indexOfMember = ChooseSpecificMember();
+                    string memberDetails = bästkustenMembers[indexOfMember].Describe();
+                    Console.WriteLine(memberDetails);
+                    break;
+                case 3:
+                    Console.WriteLine("Select the number next to the member you want to remove from group:");
+                    indexOfMember = ChooseSpecificMember();
+                    removedMembers.Add(bästkustenMembers[indexOfMember]);
+                    bästkustenMembers.RemoveAt(indexOfMember);
+                    break;
+                case 4:
+                    ShowMembersOfList(removedMembers);
+                    break;
+                case 5:
+                    QuitOrContinue();
+                    break;
+                default:
+                    Console.WriteLine("Not a valid number, try again!");
+                    break;
+            }
+        }
+   
+
+        public static void ShowMembersOfList(List<Member>memberOfList)
+        {
+            foreach (var member in memberOfList)
+            {
+                Console.Write(member.Name + ",");
+            }
+            Console.WriteLine();
+        }
+        public static int ChooseSpecificMember()
+        {
+            int choice;
+            do
+            {
+                int counter = 1;
+                for (int i = 0; i < bästkustenMembers.Count; i++)
+                {
+                    Console.WriteLine($"[{counter}] {bästkustenMembers[i].Name}");
+                    counter++;
+                }
+                Console.WriteLine();
+                int.TryParse(Console.ReadLine(), out choice);
+                Console.WriteLine();
+                if(choice > bästkustenMembers.Count || choice <= 0)
+                {
+                    Console.WriteLine("You must choose a number that exists next to a member. Try again!");
+                }
+            } while (choice > bästkustenMembers.Count || choice <= 0);
+           
+            return choice - 1;
+        }
         private static List<Member> AddMembers()
         {
             List<Member> members = new List<Member>();
@@ -136,104 +274,24 @@ namespace Inlämningsuppg2
             return members;
 
         }
-        private static void Login()
-        {
-            string input;
-            do
-            {
-                Console.Write("Enter the password: ");
-                input = Console.ReadLine().ToLower();
 
-            } while (input != "bästkusten");
-
-            Console.Clear();
-            Console.WriteLine("Welcome!!");
-
-            MainMenu();
-
-        }
-        private static void MainMenu()
-        {
-            int choice = 0;
-            do
-            {
-                Console.WriteLine("Pick a number from the menu:");
-                Console.WriteLine("1. Show all members");
-                Console.WriteLine("2. Details about specific member");
-                Console.WriteLine("3. Remove member");
-                Console.WriteLine("4. Exit");
-                int.TryParse(Console.ReadLine(), out choice);
-                MenuAction(choice);
-            } while (choice != 4);
-
-            Console.WriteLine("See you next time!");
-           
-        }
-        private static void MenuAction(int choice)
-        {
-            List<Member> bästkustenMembers = AddMembers();
-            switch (choice)
-            {
-                case 1:
-                    ShowAllMembers(bästkustenMembers);
-                    Console.WriteLine();
-                    break;
-                case 2:
-                    Console.WriteLine("Select the number next to the member you want to reveal details about:");
-                    int userChoice = ChooseSpecificMember(bästkustenMembers);
-                    bästkustenMembers[userChoice].Describe();
-                    break;
-                case 3:
-                    Console.WriteLine("Select the number next to the member you want to remove from group:");
-                    userChoice = ChooseSpecificMember(bästkustenMembers);
-                    bästkustenMembers.RemoveAt(userChoice);
-                    break;
-                case 4:
-                    break;
-                default:
-                    break;
-            }
-        }
-   
-
-        public static void ShowAllMembers(List<Member>members)
-        {
-            foreach (var member in members)
-            {
-                Console.WriteLine(member.Name);
-            }
-        }
-        public static int ChooseSpecificMember(List<Member> members)
-        {
-            int counter = 1;
-            for (int i = 0; i < members.Count; i++)
-            {
-                Console.WriteLine($"[{counter}] {members[i].Name}");
-            }
-            int.TryParse(Console.ReadLine(), out int choice);
-            return choice;
-
-        }
-      
         public class Member
         {
             public string Name { get; set; }
             public int Age { get; set; }
-
             public int Height { get; set; }
             public string Hobby { get; set; }
             public string FavoriteFood { get; set; }
-
             public string FavoriteColor { get; set; }
             public string Motivation { get; set; }
-
             public string CurrentCity { get; set; }
             public string CityOfBirth { get; set; }
             public int NumberOfSiblings { get; set; }
 
             public string Describe()
             {
-                return $"{Name}\n{Age}\n{Height}\n{Hobby}\n{FavoriteFood}\n{FavoriteColor}\n{Motivation}\n{CurrentCity}\n{CityOfBirth}\n{NumberOfSiblings}\n";
+                return $"Namn: {Name}\nÅlder: {Age}\nLängd: {Height}\nHobby: {Hobby}\nFavoritkäk: {FavoriteFood}\nFavoritfärg: {FavoriteColor}\n" +
+                    $"Motivation: {Motivation}\nHemort: {CurrentCity}\nFödelseort: {CityOfBirth}\nSyskon: {NumberOfSiblings}\n";
             }
 
         }
