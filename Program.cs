@@ -4,12 +4,14 @@ using System.Linq;
 using System.Net.Cache;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 
 namespace Inlämningsuppg2
 {
-    class Program
+    partial class Program
     {
+        // Add members metoden returnerar en lista med alla medlemmar tillagda.
         static List<Member> bästkustenMembers = AddMembers();
         static List<Member> removedMembers = new List<Member>();
 
@@ -17,18 +19,19 @@ namespace Inlämningsuppg2
         {
             Login();
         }
-        private static List<Member> AddMembers()
+        static List<Member> AddMembers()
         {
             List<Member> members = new List<Member>();
-
-            Member david = new Member("David", 182, 32, "BJJ", "Tacos", "Blå", "Problemlösning", "Norrtälje", "Göteborg", 1);
-            Member johan = new Member("Johan", 194, 34, "Gaming", "Tacos", "Blå", "Trygg framtid", "Mariefred", "Mariefred", 2);
-            Member oscar = new Member("Oscar", 185, 26, "Fotboll", "Lasagne", "Blå", "Jobb", "Stockholm", "Stockholm", 1);
-            Member sanjin = new Member("Sanjin", 179, 30, "Fotboll", "Pizza", "Blå", "Jobb", "NorrKöping", "Mostar", 2);
-            Member jerry = new Member("Jeremy", 181, 19, "Gaming", "Älggryta", "Teal", "Jobb", "Djurö", "Köln", 1);
-            Member cecilia = new Member("Cecilia", 163, 29, "The Sims", "Risotto", "Gul", "Kreativitet", "Norrköping", "Norrköping", 1);
-            Member elin = new Member("Elin", 170, 31, "Hästar", "Sushi", "Röd", "Personlig utveckling", "Knivsta", "Karlskoga", 2);
-            Member ivo = new Member("Ivo", 174, 42, "Fotografering", "Scampi", "Svart", "Kreativitet", "Uppsala", "Split", 1);
+            // skapar medlemmarna och skickar med informationen till Members konstruktor.
+            Member david = new Member("David", 32, 182, "BJJ", "Tacos", "Blå", "Problemlösning", "Norrtälje", "Göteborg", 1);
+            Member johan = new Member("Johan", 34, 194, "Gaming", "Tacos", "Blå", "Trygg framtid", "Mariefred", "Mariefred", 2);
+            Member oscar = new Member("Oscar", 26, 185, "Fotboll", "Lasagne", "Blå", "Jobb", "Stockholm", "Stockholm", 1);
+            Member sanjin = new Member("Sanjin", 30, 179, "Fotboll", "Pizza", "Blå", "Jobb", "NorrKöping", "Mostar", 2);
+            Member jerry = new Member("Jeremy", 19, 181, "Gaming", "Älggryta", "Teal", "Jobb", "Djurö", "Köln", 1);
+            Member cecilia = new Member("Cecilia", 29, 163, "The Sims", "Risotto", "Gul", "Kreativitet", "Norrköping", "Norrköping", 1);
+            Member elin = new Member("Elin", 31, 170, "Hästar", "Sushi", "Röd", "Personlig utveckling", "Knivsta", "Karlskoga", 2);
+            Member ivo = new Member("Ivo", 42, 174, "Fotografering", "Scampi", "Svart", "Kreativitet", "Uppsala", "Split", 1);
+            Member mostafa = new Member("Mostafa", 33, 174, "Träning", "Oxfile", "Svart", "Tycker om att koda och lösa problem", "Stockholm", "Stockholm", 1);
 
             members.Add(david);
             members.Add(johan);
@@ -38,49 +41,61 @@ namespace Inlämningsuppg2
             members.Add(cecilia);
             members.Add(elin);
             members.Add(ivo);
-
+            members.Add(mostafa);
+            // returnerar en lista med alla medlemmars information
             return members;
         }
-        private static void Login()
+        static void Login()
         {
+            int errorCount = 0;
             string input;
             string correctPassword = "bästkusten";
             do
             {
-                Console.Write("Enter the password: ");
+                Console.Write("Skriv in lösenord: ");
                 input = Console.ReadLine();
-
-                if (input.ToLower() != correctPassword)
+                Regex.Replace(" ", "", input);
+                // ifall lösenordet är fel meddelas detta och errorCount ökas
+                if (input.ToLower().Replace(" ", "") != correctPassword)
                 {
-                    Console.WriteLine("Wrong password. Try again!");
+                    Console.WriteLine("Fel lösenord! försök igen");
+                    errorCount++;
                 }
-
-            } while (input.ToLower() != correctPassword);
+                // om errorCount når 3 så får man en ledtråd
+                if (errorCount == 3)
+                {
+                    Console.Clear();
+                    Console.WriteLine("HINT: b.stku..en");
+                    errorCount = 0;
+                }
+                // loopen fortsätter tills rätt lösenord är inamatat. lösenordet kan skrivas med mellanrum emellan och med små/stora bokstäver tack vare .ToLower och .Replace.
+            } while (input.ToLower().Replace(" ", "") != correctPassword);
 
             Console.Clear();
-            Console.WriteLine("Welcome to bästkusten!!");
+            Console.WriteLine("Välkommen till bästkusten!!");
 
             MainMenu();
         }
-        private static void MainMenu()
+        static void MainMenu()
         {
             int choice;
             do
             {
-                Console.WriteLine("Pick a number from the menu:");
-                Console.WriteLine("1. Show all members");
-                Console.WriteLine("2. Details about specific member");
-                Console.WriteLine("3. Show what members have in common");
-                Console.WriteLine("4. Remove member from bästkusten");
-                Console.WriteLine("5. Show former members");
-                Console.WriteLine("6. Exit");
+                Console.WriteLine("\nVälj ett nummer i menyn:");
+                Console.WriteLine("1. Visa alla medlemmar");
+                Console.WriteLine("2. Visa detaljer om specific medlem");
+                Console.WriteLine("3. Visa vad medlemmar har gemensamt");
+                Console.WriteLine("4. Ta bort medlem");
+                Console.WriteLine("5. Visa tidigare medlemmar");
+                Console.WriteLine("6. Avsluta");
 
                 int.TryParse(Console.ReadLine(), out choice);
+                // tar in användarens val och skickar till metoden MenuAction
                 MenuAction(choice);
 
             } while (choice != 6);
         }
-        private static void MenuAction(int choice)
+        static void MenuAction(int choice)
         {
             int indexOfMember;
 
@@ -90,261 +105,241 @@ namespace Inlämningsuppg2
                     ShowMembersOfList(bästkustenMembers);
                     break;
                 case 2:
-                    Console.WriteLine("Select the number next to the member you want to reveal details about:");
+                    Console.Clear();
+                    Console.WriteLine("Välj numret bredvid den medlem som du vill visa information om:");
+                    // får ut indexet på den medlemmen som användaren valt
                     indexOfMember = ChooseSpecificMember();
-                    string memberDetails = bästkustenMembers[indexOfMember].Describe();
+                    // skriver ut den medlemmen på det index som användaren har valt.
+                    string memberDetails = bästkustenMembers[indexOfMember].ToString();
                     Console.WriteLine(memberDetails);
                     break;
                 case 3:
                     InformationInCommonMenu();
                     break;
                 case 4:
-                    Console.WriteLine("Select the number next to the member you want to remove from group:");
+                    Console.Clear();
+                    Console.WriteLine("Välj numret bredvid den medlem som du vill visa ta bort:");
                     indexOfMember = ChooseSpecificMember();
+                    // här adderas det indexet som användaren vill ta bort till en annan lista för att kunna skriva ut borttagna medlemmar.
                     removedMembers.Add(bästkustenMembers[indexOfMember]);
+                    Console.WriteLine($"{bästkustenMembers[indexOfMember].Name} är nu borttagen från bästkusten!");
                     bästkustenMembers.RemoveAt(indexOfMember);
                     break;
                 case 5:
                     ShowMembersOfList(removedMembers);
                     break;
                 case 6:
-                    QuitOrContinue();
+                    Exit();
                     break;
                 default:
-                    Console.WriteLine("Not a valid number, try again!");
+                    Console.Clear();
+                    Console.WriteLine("Måste vara ett nummer mellan 1 och 6. Testa igen!");
                     break;
             }
         }
 
 
-        private static void ShowMembersOfList(List<Member> memberOfList)
+        static void ShowMembersOfList(List<Member> memberOfList)
         {
+            // använder i denna metod en string lista som jag sedan gör en join på tillsammans med ",", därefter lägger jag till punkt så att det alltid blir en punkt efter sista namnet.
             List<string> names = new List<string>();
             foreach (var member in memberOfList)
             {
                 names.Add(member.Name);
             }
-
-            Console.WriteLine(string.Join(", ", names) + ".");
+            Console.Clear();
+            Console.WriteLine("Nedan följer namnen på medlemmarna i bästkusten:\n");
+            for (int i = 0; i < names.Count; i++)
+            {
+                if (i + 1 == names.Count)
+                {
+                    Console.Write($"{names[i]}.\n");
+                }
+                else if (i + 2 == names.Count)
+                {
+                    Console.Write($"{ names[i]} och ");
+                }
+                else
+                {
+                    Console.Write($"{names[i]},");
+                }
+            }
         }
-        private static int ChooseSpecificMember()
+        static int ChooseSpecificMember()
         {
+            int returnTomainMenu = bästkustenMembers.Count + 1;
+            int exitProgram = bästkustenMembers.Count + 2;
+
+            // skapar denna variabel (även fast jag redan har en med samma värde) pga tydlighet med namn inuti loopen.
+            int numberOfChoices = bästkustenMembers.Count + 2;
             int choice;
             do
             {
-                int counter = 1;
+                // skriver ut medlemmarnas namn med ett nummer bredvid som användaren får välja. använder (i+1) för att numreringen ska starta på 1.
                 for (int i = 0; i < bästkustenMembers.Count; i++)
                 {
-                    Console.WriteLine($"[{counter}] {bästkustenMembers[i].Name}");
-                    counter++;
+                    Console.WriteLine($"[{i + 1}] {bästkustenMembers[i].Name}");
                 }
+                Console.WriteLine();
+
+                // här lägger jag till två ytterligare alternativ under användarna
+                Console.WriteLine($"[{returnTomainMenu}] Återgå till huvudmenyn");
+                Console.WriteLine($"[{exitProgram}] Avsluta program");
                 Console.WriteLine();
                 int.TryParse(Console.ReadLine(), out choice);
                 Console.WriteLine();
-                if (choice > bästkustenMembers.Count || choice <= 0)
+                // exit program kommer alltid vara det sista alternativet i menyn. Men kommer att ha olika världen beroende på hur många medlemmar som finns i listan.
+                if (choice > numberOfChoices || choice <= 0)
                 {
-                    Console.WriteLine("You must choose a number that exists next to a member. Try again!");
+                    Console.Clear();
+                    Console.WriteLine("Du måste välja ett nummer som finns i menyn. Försök igen");
                 }
-            } while (choice > bästkustenMembers.Count || choice <= 0);
+            } while (choice > numberOfChoices || choice <= 0);
+            // ifall man väljer ett nummer som finns i menyn, så hoppar man ur loopen.
 
+            // hanterar ifall användaren vill återvända eller avsluta.
+            if (choice == returnTomainMenu)
+            {
+                MainMenu();
+            }
+            else if (choice == exitProgram)
+            {
+                Exit();
+            }
+            // (choice - 1) returneras eftersom det måste matcha med listan som är nollindexerad.
             return choice - 1;
         }
-        private static void InformationInCommonMenu()
+        static void InformationInCommonMenu()
         {
             int choice;
             do
             {
-                Console.WriteLine("Choose which cateogry you want to see members in common: ");
-                Console.WriteLine("[1] Age");
-                Console.WriteLine("[2] Height");
-                Console.WriteLine("[3] Hobby");
-                Console.WriteLine("[4] Favorite food");
-                Console.WriteLine("[5] Favorite color");
-                Console.WriteLine("[6] Motivation");
-                Console.WriteLine("[7] Current city");
-                Console.WriteLine("[8] City of birth");
-                Console.WriteLine("[9] Number of siblings");
-                Console.WriteLine("[10] Return");
+                Console.WriteLine("\nMedlemmar har gemensamt i följande kategorier: (Välj nummret bredvid en kategori för att få reda på vad)");
+                Console.WriteLine("[1] Längd");
+                Console.WriteLine("[2] Hobby");
+                Console.WriteLine("[3] Favorit mat");
+                Console.WriteLine("[4] Favorit färg");
+                Console.WriteLine("[5] Motivation");
+                Console.WriteLine("[6] Antal syskon");
+                Console.WriteLine("[7] Återgå till huvudmenyn");
+                Console.WriteLine("[8] Avsluta program");
 
                 int.TryParse(Console.ReadLine(), out choice);
+                // tar in användarens val och skickar till metoden InformationInCommonMenuAction metoden
                 InformationInCommonMenuAction(choice);
 
-            } while (choice != 10);
-           
-            var matches = from member in bästkustenMembers
-                          where bästkustenMembers.Count(b => b.Age == member.Age) > 1
-                          orderby member.Age
-                          select member;
-            if (matches.Count() > 1)
-            {
-                Console.WriteLine("Members that have the same age: ");
-                foreach (var member in matches)
-                {
-                    Console.WriteLine($"{member.Name} {member.Age}");
-                }
-                Console.WriteLine();
-                matches = null;
-            }
-
-            matches = from member in bästkustenMembers
-                      where bästkustenMembers.Count(b => b.Height == member.Height) > 1
-                      orderby member.Height
-                      select member;
-
-            if (matches.Count() > 1)
-            {
-                Console.WriteLine("Members that have the same height:");
-                foreach (var member in matches)
-                {
-                    Console.WriteLine($"{member.Name} {member.Height}");
-                }
-                Console.WriteLine();
-                matches = null;
-            }
-
-            matches = from member in bästkustenMembers
-                      where bästkustenMembers.Count(b => b.Hobby == member.Hobby) > 1
-                      orderby member.Hobby
-                      select member;
-            if (matches.Count() > 1)
-            {
-                Console.WriteLine("Members that share the same hobbies: ");
-                foreach (var member in matches)
-                {
-                    Console.WriteLine($"{member.Name} {member.Hobby}");
-                }
-                Console.WriteLine();
-                matches = null;
-            }
-
-            matches = from member in bästkustenMembers
-                      where bästkustenMembers.Count(b => b.FavoriteFood == member.FavoriteFood) > 1
-                      orderby member.FavoriteFood
-                      select member;
-            if (matches.Count() > 1)
-            {
-                Console.WriteLine("Members that have the same favorite food: ");
-                foreach (var match in matches)
-                {
-                    Console.WriteLine($"{match.Name} {match.FavoriteFood}");
-                }
-                Console.WriteLine();
-                matches = null;
-            }
-
-            matches = from member in bästkustenMembers
-                      where bästkustenMembers.Count(b => b.FavoriteColor == member.FavoriteColor) > 1
-                      orderby member.FavoriteColor
-                      select member;
-            if (matches.Count() > 1)
-            {
-                Console.WriteLine("Members that have the same favorite color: ");
-                foreach (var match in matches)
-                {
-                    Console.WriteLine($"{match.Name} favorite color is {match.FavoriteColor}");
-                }
-                Console.WriteLine();
-                matches = null;
-            }
-
-            matches = from member in bästkustenMembers
-                      where bästkustenMembers.Count(b => b.Motivation == member.Motivation) > 1
-                      orderby member.Motivation
-                      select member;
-            if (matches.Count() > 1)
-            {
-                Console.WriteLine("Members that have the same motivation: ");
-                foreach (var match in matches)
-                {
-                    Console.WriteLine($"{match.Name} motivation is {match.Motivation}");
-                }
-                Console.WriteLine();
-                matches = null;
-            }
-            matches = from member in bästkustenMembers
-                      where bästkustenMembers.Count(b => b.CurrentCity == member.CurrentCity) > 1
-                      orderby member.CurrentCity
-                      select member;
-            if (matches.Count() > 1)
-            {
-                Console.WriteLine("Members that live in the same city: ");
-                foreach (var match in matches)
-                {
-                    Console.WriteLine($"{match.Name} current city is {match.CurrentCity}");
-                }
-                Console.WriteLine();
-                matches = null;
-            }
-            matches = from member in bästkustenMembers
-                      where bästkustenMembers.Count(b => b.CityOfBirth == member.CityOfBirth) > 1
-                      orderby member.CityOfBirth
-                      select member;
-            if (matches.Count() > 1)
-            {
-                Console.WriteLine("Members that was born in the same city: ");
-                foreach (var match in matches)
-                {
-                    Console.WriteLine($"{match.Name} city of birth is {match.CityOfBirth}");
-                }
-                Console.WriteLine();
-                matches = null;
-            }
-            matches = from member in bästkustenMembers
-                      where bästkustenMembers.Count(b => b.NumberOfSiblings == member.NumberOfSiblings) > 1
-                      orderby member.NumberOfSiblings
-                      select member;
-            if (matches.Count() > 1)
-            {
-                Console.WriteLine("Members that has the same amount of siblings as another member: ");
-                foreach (var match in matches)
-                {
-                    Console.WriteLine($"{match.Name} has {match.NumberOfSiblings}");
-                }
-                Console.WriteLine();
-                matches = null;
-            }
+            } while (choice != 7 || choice != 8);
         }
         static void InformationInCommonMenuAction(int choice)
         {
-            List<string> info = new List<string>();
+            // använder i denna metoden linq för att få fram vilka medlemmar det är som har samma svar på respektive kategori.
+            // använder where för detta. (samt from för att filtera från specifik lista). Sedan Orderby för att sortera ut resultaten.
+
             switch (choice)
             {
-
                 case 1:
-                    var matches = from member in bästkustenMembers
-                                  where bästkustenMembers.Count(b => b.Age == member.Age) > 1
-                                  orderby member.Age
-                                  select member;
-                    foreach (var item in matches)
+                    var heightMatches = from member in bästkustenMembers
+                                        where bästkustenMembers.Count(b => b.Height == member.Height) > 1
+                                        orderby member.Height
+                                        select member;
+                    Console.Clear();
+                    Console.WriteLine("Medlemmar som har samma längd: \n");
+                    foreach (var matches in heightMatches)
                     {
-                        info.Add(item.Name);
-                        info.Add(item.Age.ToString());
+                        Console.WriteLine($"{matches.Name} är ({matches.Height}) cm lång");
                     }
                     break;
-                    
-
-
-                default:
+                case 2:
+                    var hobbyMatches = from member in bästkustenMembers
+                                       where bästkustenMembers.Count(b => b.Hobby == member.Hobby) > 1
+                                       orderby member.Hobby
+                                       select member;
+                    Console.Clear();
+                    Console.WriteLine("Medlemmar som delar samma hobby: \n");
+                    foreach (var matches in hobbyMatches)
+                    {
+                        Console.WriteLine($"{matches.Name} har ({matches.Hobby}) som sin hobby");
+                    }
                     break;
+                case 3:
+                    var favoriteFoodMatches = from member in bästkustenMembers
+                                              where bästkustenMembers.Count(b => b.FavoriteFood == member.FavoriteFood) > 1
+                                              orderby member.FavoriteFood
+                                              select member;
+                    Console.Clear();
+                    Console.WriteLine("Medlemmar som har samma favoritmat: \n");
+                    foreach (var matches in favoriteFoodMatches)
+                    {
+                        Console.WriteLine($"{matches.Name} har ({matches.FavoriteFood}) som sin favoriträtt");
+                    }
+                    break;
+                case 4:
+                    var favoriteColorMatches = from member in bästkustenMembers
+                                               where bästkustenMembers.Count(b => b.FavoriteColor == member.FavoriteColor) > 1
+                                               orderby member.FavoriteColor
+                                               select member;
+                    Console.Clear();
+                    Console.WriteLine("Medlemmar som har samma favoritfärg: \n");
+                    foreach (var matches in favoriteColorMatches)
+                    {
+                        Console.WriteLine($"{matches.Name} har ({matches.FavoriteColor}) som favoritfärg");
+                    }
+                    break;
+                case 5:
+                    var motivationMatches = from member in bästkustenMembers
+                                            where bästkustenMembers.Count(b => b.Motivation == member.Motivation) > 1
+                                            orderby member.Motivation
+                                            select member;
+                    Console.Clear();
+                    Console.WriteLine("Medlemmar som delar samma motivation:\n");
+                    foreach (var matches in motivationMatches)
+                    {
+                        Console.WriteLine($"{matches.Name} har ({matches.Motivation}) som motivation");
+
+                    }
+                    break;
+                case 6:
+                    var siblingMatches = from member in bästkustenMembers
+                                         where bästkustenMembers.Count(b => b.NumberOfSiblings == member.NumberOfSiblings) > 1
+                                         orderby member.NumberOfSiblings
+                                         select member;
+                    Console.Clear();
+                    Console.WriteLine("Medlemmar som delar samma antal syskon:\n");
+                    foreach (var matches in siblingMatches)
+                    {
+                        Console.WriteLine($"{matches.Name} har ({matches.NumberOfSiblings}) syskon");
+                    }
+                    break;
+                case 7:
+                    Console.Clear();
+                    MainMenu();
+                    break;
+                case 8:
+                    Exit();
+                    break;
+                default:
+                    Console.Clear();
+                    Console.WriteLine("Måste vara ett nummer mellan 1 och 8. Testa igen");
+                    return;
             }
         }
-      
 
-        private static void QuitOrContinue()
+        static void Exit()
         {
+            // stänger ner programmet ifall användaren skriver in y, skrivar man n skickas man till huvudmenyn.
             string input = "";
             bool quit = false;
 
             while (quit == false)
             {
-                Console.WriteLine("Are you sure you want to quit? y/n");
-                input = Console.ReadLine();
+                Console.WriteLine("Är du säker på att du vill avsluta y/n");
+                input = Console.ReadLine().ToLower();
 
                 if (input.ToLower() == "y")
                 {
                     Console.Clear();
-                    Console.WriteLine("See you next time!");
-                    quit = true;
+                    Console.WriteLine("Vi ses nästa gång!");
+                    Environment.Exit(0);
                 }
                 else if (input.ToLower() == "n")
                 {
@@ -354,47 +349,9 @@ namespace Inlämningsuppg2
                 else
                 {
                     Console.Clear();
-                    Console.WriteLine("Not valid input. Press y/n");
+                    Console.WriteLine("Tryck y/n. Försök igen!");
                 }
             }
-
-
-
-
-        }
-        public class Member
-        {
-            public string Name { get; set; }
-            public int Age { get; set; }
-            public int Height { get; set; }
-            public string Hobby { get; set; }
-            public string FavoriteFood { get; set; }
-            public string FavoriteColor { get; set; }
-            public string Motivation { get; set; }
-            public string CurrentCity { get; set; }
-            public string CityOfBirth { get; set; }
-            public int NumberOfSiblings { get; set; }
-
-            public Member(string name, int age, int height, string hobby, string favoriteFood, string favoriteColor, string motivation, string currentCity, string cityOfBirth, int numberOfSiblings)
-            {
-                this.Name = name;
-                this.Age = age;
-                this.Height = height;
-                this.Hobby = hobby;
-                this.FavoriteFood = favoriteFood;
-                this.FavoriteColor = favoriteColor;
-                this.Motivation = motivation;
-                this.CurrentCity = currentCity;
-                this.CityOfBirth = cityOfBirth;
-                this.NumberOfSiblings = numberOfSiblings;
-
-            }
-            public string Describe()
-            {
-                return $"Namn: {Name}\nÅlder: {Age}\nLängd: {Height}\nHobby: {Hobby}\nFavoritkäk: {FavoriteFood}\nFavoritfärg: {FavoriteColor}\n" +
-                    $"Motivation: {Motivation}\nHemort: {CurrentCity}\nFödelseort: {CityOfBirth}\nSyskon: {NumberOfSiblings}\n";
-            }
-
         }
     }
 }
